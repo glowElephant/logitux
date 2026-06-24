@@ -1,0 +1,7 @@
+# Python 패키지 (pip)
+PySide6
+
+# 참고: 백엔드 매핑 엔진은 시스템 패키지 Solaar가 제공합니다.
+#   sudo apt install solaar
+# Solaar의 logitech_receiver 라이브러리를 자동 탐색해 사용하며,
+# pip 의존성이 아닙니다. (logitux/backend/solaar_env.py 참조)
