@@ -54,6 +54,14 @@ python3 main.py
 
 > 현재 ②까지는 매핑을 화면에 반영하지만 실제 키 입력 적용(③)은 미연결 상태입니다.
 
+### 도식 이미지
+
+- **MX Master 4 / 3S / 3** — 로지텍 공식 실물 이미지를 사용합니다. 저작권 때문에
+  저장소에 번들하지 않고, **첫 실행 시 로지텍 CDN에서 다운로드**해
+  `~/.cache/logitux/images/`에 캐시합니다.
+- **그 외 모델** — 번들된 일반 마우스 벡터 도식(`mouse-generic.svg`)으로 표시합니다.
+  이미지 다운로드 실패(오프라인 등) 시에도 이 도식으로 폴백합니다.
+
 ### 구조
 
 ```
@@ -62,10 +70,13 @@ logitux/
     solaar_env.py    # Solaar(logitech_receiver) 라이브러리 경로 탐색
     detect.py        # 연결된 마우스 감지·열거
     buttons.py       # 재할당 가능 버튼(REPROG CONTROLS) 추출
+    assets.py        # 모델 이미지 다운로드·캐시
     models.py        # 모델 도식 데이터 로드 + 기기 매칭
   data/mice/
-    mx-master-4.svg  # 마우스 벡터 도식
-    mx-master-4.json # 버튼 좌표(핫스팟) + 매칭 규칙
+    mx-master-4.json   # MX4 실물 이미지 URL + 버튼 좌표
+    mx-master-3s.json  # MX3S/3 실물 이미지 URL + 버튼 좌표
+    _generic.json      # 폴백 모델 (일반 도식)
+    mouse-generic.svg  # 폴백 벡터 도식
   gui/
     select_window.py  # 마우스 선택 화면
     mapping_window.py # 도식 매핑 화면 (QGraphicsView)
@@ -75,8 +86,10 @@ main.py              # 진입점
 
 ### 새 마우스 모델 추가
 
-`data/mice/` 에 `<model>.json`(매칭 규칙 + 버튼 좌표)과 `<model>.svg`(도식)를
-추가하면 코드 수정 없이 인식됩니다. `match`의 `wpid` 또는 `codename`으로 매칭합니다.
+`data/mice/` 에 `<model>.json`을 추가하면 코드 수정 없이 인식됩니다.
+- 실물 이미지: `image_url`(원격) + `canvas`(이미지 크기) + 버튼 좌표
+- 번들 도식: `svg` 파일명 + `canvas`(viewBox 크기) + 버튼 좌표
+- 매칭: `match`의 `wpid` 또는 `codename`(문자열 또는 리스트)
 
 ## 라이선스
 

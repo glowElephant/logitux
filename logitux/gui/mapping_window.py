@@ -6,11 +6,12 @@
 """
 from __future__ import annotations
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Signal
-from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
+from PySide6.QtCore import QRectF, Qt, Signal
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPixmap
 from PySide6.QtSvgWidgets import QGraphicsSvgItem
 from PySide6.QtWidgets import (
     QGraphicsObject,
+    QGraphicsPixmapItem,
     QGraphicsScene,
     QGraphicsView,
     QHBoxLayout,
@@ -20,9 +21,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..backend.assets import cached_image
 from ..backend.buttons import list_buttons
 from ..backend.detect import MouseDevice
-from ..backend.models import ButtonSpot, MouseModel, match_model
+from ..backend.models import ButtonSpot, load_generic, match_model
 from .key_capture import KeyCaptureDialog
 
 _BLUE = QColor("#5b8cff")
@@ -142,16 +144,23 @@ class MappingWindow(QWidget):
             ).setDefaultTextColor(_MUTED)
             return
 
+        # 배경 도식: 실물 이미지(다운로드) 우선, 실패 시 generic SVG로 폴백
+        if model.image_url:
+            img = cached_image(model.image_url)
+            if img:
+                self.scene.addItem(QGraphicsPixmapItem(QPixmap(str(img))))
+            else:
+                generic = load_generic()
+                if generic:
+                    model = generic  # 좌표도 generic 것으로
+        if not model.image_url and model.svg_path and model.svg_path.exists():
+            self.scene.addItem(QGraphicsSvgItem(str(model.svg_path)))
+
         # 어떤 버튼이 매핑 가능한지 백엔드에서 조회 (cid → mappable)
         try:
             mappable = {b.cid: b.mappable for b in list_buttons(self.mouse)}
         except Exception:
             mappable = {}
-
-        # SVG 도식
-        if model.svg_path.exists():
-            svg = QGraphicsSvgItem(str(model.svg_path))
-            self.scene.addItem(svg)
 
         # 핫스팟 + 연결선 + 라벨
         for spot in model.spots:

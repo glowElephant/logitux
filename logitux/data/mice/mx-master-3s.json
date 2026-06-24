@@ -1,0 +1,15 @@
+{
+  "model": "MX Master 3S / 3",
+  "match": { "codename": ["MX Master 3S", "MX Master 3"] },
+  "image_url": "https://resource.logitech.com/w_800,h_700,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/mice/mx-master-3s/2025-update/mx-master-3s-bluetooth-edition-top-view-black-new-1.png",
+  "canvas": { "width": 800, "height": 700 },
+  "buttons": [
+    { "cid": 80,  "x": 375, "y": 100, "label": "왼쪽 클릭",   "label_x": 95,  "label_y": 85  },
+    { "cid": 81,  "x": 575, "y": 130, "label": "오른쪽 클릭", "label_x": 700, "label_y": 105 },
+    { "cid": 82,  "x": 450, "y": 180, "label": "휠 클릭",     "label_x": 700, "label_y": 190 },
+    { "cid": 196, "x": 455, "y": 285, "label": "휠 모드 전환", "label_x": 700, "label_y": 295 },
+    { "cid": 83,  "x": 320, "y": 320, "label": "뒤로",       "label_x": 95,  "label_y": 290 },
+    { "cid": 86,  "x": 328, "y": 362, "label": "앞으로",      "label_x": 95,  "label_y": 375 },
+    { "cid": 195, "x": 300, "y": 410, "label": "제스처 버튼",  "label_x": 95,  "label_y": 460 }
+  ]
+}
