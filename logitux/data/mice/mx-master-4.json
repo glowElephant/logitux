@@ -1,0 +1,15 @@
+{
+  "model": "MX Master 4",
+  "match": { "wpid": "B042", "codename": "MX Master 4" },
+  "svg": "mx-master-4.svg",
+  "view": { "width": 300, "height": 470 },
+  "buttons": [
+    { "cid": 80,  "x": 116, "y": 78,  "label": "왼쪽 클릭",   "label_x": 28,  "label_y": 78  },
+    { "cid": 81,  "x": 184, "y": 78,  "label": "오른쪽 클릭", "label_x": 232, "label_y": 78  },
+    { "cid": 82,  "x": 150, "y": 96,  "label": "휠 클릭",     "label_x": 232, "label_y": 130 },
+    { "cid": 196, "x": 150, "y": 150, "label": "휠 모드 전환", "label_x": 232, "label_y": 180 },
+    { "cid": 83,  "x": 86,  "y": 210, "label": "뒤로",       "label_x": 24,  "label_y": 196 },
+    { "cid": 86,  "x": 86,  "y": 248, "label": "앞으로",      "label_x": 24,  "label_y": 248 },
+    { "cid": 195, "x": 58,  "y": 290, "label": "제스처 버튼",  "label_x": 24,  "label_y": 300 }
+  ]
+}

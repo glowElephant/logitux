@@ -46,20 +46,37 @@ python3 main.py
 
 ## 상태
 
-🚧 **마일스톤 ① 구현 완료** — 마우스 감지 + 선택 GUI 동작.
-다음: ② 마우스 도식 시각화 + 클릭 매핑. 자세한 계획은 [`docs/spec.md`](docs/spec.md) 참조.
+🚧 **마일스톤 ①–② 구현 완료**
+- ① 마우스 감지 + 선택 GUI
+- ② 도식 시각화 + 클릭 매핑 — 마우스 도식 위 버튼 핫스팟·연결선·라벨, 버튼 클릭 → 단축키 지정
+
+다음: ③ Solaar diversion으로 실제 키 emit 적용 + 영구 저장/배포. 계획은 [`docs/spec.md`](docs/spec.md) 참조.
+
+> 현재 ②까지는 매핑을 화면에 반영하지만 실제 키 입력 적용(③)은 미연결 상태입니다.
 
 ### 구조
 
 ```
 logitux/
   backend/
-    solaar_env.py   # Solaar(logitech_receiver) 라이브러리 경로 탐색
-    detect.py       # 연결된 마우스 감지·열거
+    solaar_env.py    # Solaar(logitech_receiver) 라이브러리 경로 탐색
+    detect.py        # 연결된 마우스 감지·열거
+    buttons.py       # 재할당 가능 버튼(REPROG CONTROLS) 추출
+    models.py        # 모델 도식 데이터 로드 + 기기 매칭
+  data/mice/
+    mx-master-4.svg  # 마우스 벡터 도식
+    mx-master-4.json # 버튼 좌표(핫스팟) + 매칭 규칙
   gui/
-    select_window.py # 마우스 선택 화면 (PySide6)
-main.py             # 진입점
+    select_window.py  # 마우스 선택 화면
+    mapping_window.py # 도식 매핑 화면 (QGraphicsView)
+    key_capture.py    # 단축키 입력 다이얼로그
+main.py              # 진입점
 ```
+
+### 새 마우스 모델 추가
+
+`data/mice/` 에 `<model>.json`(매칭 규칙 + 버튼 좌표)과 `<model>.svg`(도식)를
+추가하면 코드 수정 없이 인식됩니다. `match`의 `wpid` 또는 `codename`으로 매칭합니다.
 
 ## 라이선스
 

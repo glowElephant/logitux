@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 300 470" xmlns="http://www.w3.org/2000/svg">
+  <!-- MX Master 4 — 위에서 본 단순 벡터 도식 (logitux 자체 제작) -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#33343f"/>
+      <stop offset="1" stop-color="#26272f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 엄지 받침 돌출 (좌측) -->
+  <path d="M70,180
+           C40,185 34,235 44,290
+           C52,320 66,330 78,322
+           C70,280 68,225 72,185 Z"
+        fill="#2b2c35" stroke="#474853" stroke-width="2"/>
+
+  <!-- 본체 -->
+  <path d="M150,28
+           C112,28 92,52 84,104
+           C77,150 74,210 78,272
+           C82,338 100,408 134,432
+           C144,439 156,439 166,432
+           C200,408 218,338 222,272
+           C226,210 223,150 216,104
+           C208,52 188,28 150,28 Z"
+        fill="url(#body)" stroke="#535462" stroke-width="2.5"/>
+
+  <!-- 좌/우 클릭 분할선 -->
+  <path d="M150,32 L150,168" stroke="#474853" stroke-width="2"/>
+
+  <!-- 스크롤 휠 -->
+  <rect x="140" y="70" width="20" height="52" rx="10"
+        fill="#1b1c22" stroke="#5b8cff" stroke-width="2"/>
+  <line x1="150" y1="80" x2="150" y2="112" stroke="#3a3b45" stroke-width="2"/>
+
+  <!-- 앞쪽 경계 음영 (좌우 버튼 앞단) -->
+  <path d="M96,150 C120,158 180,158 204,150" stroke="#474853" stroke-width="1.5" fill="none"/>
+</svg>
