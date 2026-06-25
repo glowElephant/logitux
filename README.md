@@ -54,6 +54,14 @@ python3 main.py
 
 > 현재 ②까지는 매핑을 화면에 반영하지만 실제 키 입력 적용(③)은 미연결 상태입니다.
 
+#### MX Master 4 버튼 메모
+
+MX Master 4는 재할당 가능 버튼이 7개입니다(좌/우 클릭은 고정):
+휠 클릭, 휠 모드 전환, 뒤로, 앞으로, 제스처 버튼, 그리고 **액션 버튼(CID 416)**.
+액션 버튼은 엄지쪽 Haptic Sense Panel을 눌러 Actions Ring을 여는 신규 버튼으로,
+Solaar가 아직 이름을 모르지만(`unknown:01A0`) 소거법 + 공식 문서로 확정했습니다.
+실측 도구(`tools/probe_buttons.py`)는 WIP — 한계는 해당 파일 docstring 참조.
+
 ### 도식 이미지
 
 - **MX Master 4 / 3S / 3** — 로지텍 공식 실물 이미지를 사용합니다. 저작권 때문에

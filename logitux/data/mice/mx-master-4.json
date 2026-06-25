@@ -8,8 +8,9 @@
     { "cid": 81,  "x": 525, "y": 120, "label": "오른쪽 클릭", "label_x": 700, "label_y": 95  },
     { "cid": 82,  "x": 415, "y": 185, "label": "휠 클릭",     "label_x": 700, "label_y": 180 },
     { "cid": 196, "x": 420, "y": 305, "label": "휠 모드 전환", "label_x": 700, "label_y": 300 },
-    { "cid": 83,  "x": 340, "y": 298, "label": "뒤로",       "label_x": 95,  "label_y": 270 },
-    { "cid": 86,  "x": 350, "y": 338, "label": "앞으로",      "label_x": 95,  "label_y": 355 },
-    { "cid": 195, "x": 245, "y": 420, "label": "제스처 버튼",  "label_x": 95,  "label_y": 450 }
+    { "cid": 83,  "x": 340, "y": 298, "label": "뒤로",       "label_x": 95,  "label_y": 255 },
+    { "cid": 86,  "x": 350, "y": 338, "label": "앞으로",      "label_x": 95,  "label_y": 330 },
+    { "cid": 416, "x": 360, "y": 250, "label": "액션 버튼",    "label_x": 700, "label_y": 400 },
+    { "cid": 195, "x": 245, "y": 425, "label": "제스처 버튼",  "label_x": 95,  "label_y": 480 }
   ]
 }
