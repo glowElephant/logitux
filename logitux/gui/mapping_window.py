@@ -1,8 +1,8 @@
 """도식 매핑 화면 — 마우스 도식 위에 버튼 핫스팟·연결선·라벨을 그리고,
 버튼을 클릭하면 단축키를 매핑한다. (마일스톤 ②)
 
-실제 키 emit(Solaar diversion 적용)은 마일스톤 ③에서 backend에 연결한다.
-지금은 매핑을 메모리에 보관하고 화면에 반영한다.
+"적용"을 누르면 backend(solaar_rules)가 매핑을 Solaar 백엔드 설정으로 변환해
+실제 키가 emit되도록 한다. (마일스톤 ③)
 """
 from __future__ import annotations
 
@@ -10,12 +10,14 @@ from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPixmap
 from PySide6.QtSvgWidgets import QGraphicsSvgItem
 from PySide6.QtWidgets import (
+    QApplication,
     QGraphicsObject,
     QGraphicsPixmapItem,
     QGraphicsScene,
     QGraphicsView,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -25,6 +27,7 @@ from ..backend.assets import cached_image
 from ..backend.buttons import list_buttons
 from ..backend.detect import MouseDevice
 from ..backend.models import ButtonSpot, load_generic, match_model
+from ..backend.solaar_rules import apply_mappings, load_saved_mappings
 from .key_capture import KeyCaptureDialog
 
 _BLUE = QColor("#5b8cff")
@@ -122,7 +125,12 @@ class MappingWindow(QWidget):
         back_btn.clicked.connect(self.back.emit)
         title = QLabel(f"{mouse.codename}  ·  버튼을 눌러 단축키를 지정하세요")
         title.setObjectName("htitle")
+        self._apply_btn = QPushButton("적용")
+        self._apply_btn.setObjectName("apply")
+        self._apply_btn.setCursor(Qt.PointingHandCursor)
+        self._apply_btn.clicked.connect(self._apply)
         h.addWidget(back_btn); h.addSpacing(8); h.addWidget(title, 1)
+        h.addWidget(self._apply_btn)
         root.addWidget(header)
 
         # 도식 뷰
@@ -134,6 +142,19 @@ class MappingWindow(QWidget):
         root.addWidget(self.view, 1)
 
         self._build_scene()
+        self._restore_mappings()
+
+    def _restore_mappings(self) -> None:
+        """이전에 저장한 매핑을 불러와 라벨에 반영한다."""
+        try:
+            saved = load_saved_mappings(self.mouse.serial)
+        except Exception:
+            saved = {}
+        for cid, seq in saved.items():
+            self.mappings[cid] = seq
+            label = self._labels.get(cid)
+            if label:
+                label.set_mapping(seq)
 
     def _build_scene(self) -> None:
         model = match_model(self.mouse)
@@ -206,6 +227,51 @@ class MappingWindow(QWidget):
                 self.mappings.pop(cid, None)
             label.set_mapping(seq)
 
+    def _apply(self) -> None:
+        """현재 매핑을 Solaar 백엔드에 적용하고 데몬을 재시작한다."""
+        self._apply_btn.setEnabled(False)
+        self._apply_btn.setText("적용 중…")
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.processEvents()
+        try:
+            res = apply_mappings(self.mouse, self.mappings)
+        except Exception as e:  # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            self._apply_btn.setEnabled(True)
+            self._apply_btn.setText("적용")
+            QMessageBox.critical(self, "적용 실패", f"매핑 적용 중 오류가 발생했습니다.\n\n{e}")
+            return
+        QApplication.restoreOverrideCursor()
+        self._apply_btn.setEnabled(True)
+        self._apply_btn.setText("적용")
+
+        lines = []
+        if res.applied:
+            names = ", ".join(
+                f"{self._labels[c].spot.label}→{s}" for c, s in res.applied.items() if c in self._labels
+            )
+            lines.append(f"✅ 적용됨 ({len(res.applied)}): {names}")
+        else:
+            lines.append("적용된 매핑이 없습니다.")
+        if res.skipped:
+            sk = "\n".join(
+                f"  · {self._labels[c].spot.label if c in self._labels else c}: {why}"
+                for c, why in res.skipped
+            )
+            lines.append(f"\n⚠️ 건너뜀 ({len(res.skipped)}):\n{sk}")
+        if not res.daemon_restarted:
+            lines.append("\n❗ Solaar 데몬을 시작하지 못했습니다. solaar 설치를 확인하세요.")
+        else:
+            lines.append("\n버튼을 눌러 동작을 확인하세요. (로그인 시 자동 적용됩니다)")
+        if res.display_warning:
+            lines.append(f"\n{res.display_warning}")
+
+        box = QMessageBox(self)
+        box.setWindowTitle("적용 결과")
+        box.setIcon(QMessageBox.Warning if (res.skipped or not res.daemon_restarted) else QMessageBox.Information)
+        box.setText("\n".join(lines))
+        box.exec()
+
 
 _WINDOW_STYLE = """
 QWidget { background: #1e1f26; color: #e6e6ea; font-size: 14px; }
@@ -214,5 +280,9 @@ QWidget { background: #1e1f26; color: #e6e6ea; font-size: 14px; }
 #back { background: #34353f; color: #cfcfd6; border: none; border-radius: 8px;
         padding: 6px 14px; }
 #back:hover { background: #3d3e49; }
+#apply { background: #5b8cff; color: white; font-weight: 600; border: none;
+         border-radius: 8px; padding: 6px 18px; }
+#apply:hover { background: #6f9bff; }
+#apply:disabled { background: #3a4156; color: #aab; }
 #diagram { background: #1e1f26; border: none; }
 """

@@ -9,6 +9,24 @@
 1. **마우스 감지·선택** — 연결된 로지텍 기기를 인식해 목록에서 선택. MX Master 3/4 우선.
 2. **도식 시각화 + 매핑 편집** — 선택한 마우스의 SVG 도식 위에 버튼 위치를 선/라벨로 표시하고, 버튼 클릭 → 키조합 입력으로 매핑 편집.
 3. **매핑 적용 + 배포** — Solaar 백엔드로 매핑을 영구 적용(autostart 포함)하고, 사내 누구나 원클릭 설치 가능한 패키지(AppImage/Flatpak) 제공.
+   - ③-a **키 emit 적용** ✅ — "적용" 버튼 → `divert-keys` + `rules.yaml` 자동 생성 + 데몬 재시작 + 매핑 영구 저장/복원. (구현·실측 검증 완료)
+   - ③-b autostart 등록 (로그인 시 데몬 자동 실행) — 미구현
+   - ③-c 패키징(AppImage/Flatpak) — 미구현
+
+### ③ 백엔드 레시피 (실측 검증됨, `backend/solaar_rules.py`)
+
+매핑 적용 = 아래를 logitux가 자동화한다 (사용자는 그림+클릭만):
+1. `~/.config/solaar/config.json`의 기기 `divert-keys`에서 매핑할 CID를 `1`로.
+2. `~/.config/solaar/rules.yaml` 생성 — 매핑마다 `Key: [버튼이름, pressed]` → `KeyPress: [keysym…]`.
+   - `Key`는 CID 숫자가 아니라 **Solaar 키 이름**(`special_keys.CONTROL[cid]`). 예 195→"Mouse Gesture Button".
+   - **이름이 `unknown:*`인 버튼(MX4 액션버튼 CID 416)은 rules.yaml로 매핑 불가** → 적용 시 자동 skip. 별도 처리 과제로 남김.
+   - `KeyPress`는 X11 keysym 이름. Qt `"Ctrl+Alt+S"` → `["Control_L","Alt_L","s"]` 변환은 `backend/keysyms.py`(공백="space", 기호="plus"/"slash" 등 X11 이름 규칙).
+3. `solaar --window=hide` 데몬 상시 실행. **순서 주의**: 데몬 정지 → config/rules 기록 → 데몬 시작 (떠 있으면 종료 시 config.json을 덮어씀).
+4. 매핑은 `~/.config/logitux/mappings.json`(기기 시리얼별)에 저장 → 다음 실행 시 복원.
+
+**함정**: 데몬을 셸 자식으로 띄우고 `pkill -f "solaar --window"` 하면 패턴이 자기 명령줄과 겹쳐 셸이 죽는다(exit 144). PID(`pgrep -f bin/solaar`) + `os.kill`, 시작은 `start_new_session=True`로 분리.
+
+**한계**: Solaar `KeyPress`는 XTEST 기반 → Wayland에서 emit 안 될 수 있음. `display_server()`로 감지해 경고.
 
 ## Constraints
 

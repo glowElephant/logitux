@@ -46,13 +46,15 @@ python3 main.py
 
 ## 상태
 
-🚧 **마일스톤 ①–② 구현 완료**
+🚧 **마일스톤 ①–② + ③-a 구현 완료**
 - ① 마우스 감지 + 선택 GUI
 - ② 도식 시각화 + 클릭 매핑 — 마우스 도식 위 버튼 핫스팟·연결선·라벨, 버튼 클릭 → 단축키 지정
+- ③-a **키 emit 적용** — "적용" 버튼을 누르면 매핑이 Solaar 백엔드(`divert-keys` + `rules.yaml`)로 변환되어 **실제로 키가 입력**됩니다. 매핑은 기기별로 저장돼 다음 실행 시 복원됩니다. (실측 검증 완료)
 
-다음: ③ Solaar diversion으로 실제 키 emit 적용 + 영구 저장/배포. 계획은 [`docs/spec.md`](docs/spec.md) 참조.
+다음: ③-b autostart 등록(로그인 시 데몬 자동 실행), ③-c 패키징(AppImage/Flatpak). 계획·백엔드 레시피는 [`docs/spec.md`](docs/spec.md) 참조.
 
-> 현재 ②까지는 매핑을 화면에 반영하지만 실제 키 입력 적용(③)은 미연결 상태입니다.
+> **제약**: 실제 키 입력은 X11에서 동작합니다(Solaar `KeyPress`가 XTEST 기반). Wayland 세션에선 적용 시 경고가 표시됩니다.
+> MX Master 4의 **액션 버튼(CID 416)**은 Solaar가 이름을 몰라(`unknown:01A0`) 현재 매핑에서 자동 제외됩니다 — 별도 처리 예정.
 
 #### MX Master 4 버튼 메모
 
@@ -80,6 +82,8 @@ logitux/
     buttons.py       # 재할당 가능 버튼(REPROG CONTROLS) 추출
     assets.py        # 모델 이미지 다운로드·캐시
     models.py        # 모델 도식 데이터 로드 + 기기 매칭
+    keysyms.py       # Qt 키시퀀스 → X11 keysym 이름 변환 (③)
+    solaar_rules.py  # 매핑 → divert-keys + rules.yaml 적용 + 데몬 관리 (③)
   data/mice/
     mx-master-4.json   # MX4 실물 이미지 URL + 버튼 좌표
     mx-master-3s.json  # MX3S/3 실물 이미지 URL + 버튼 좌표
