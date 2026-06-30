@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=logitux
+GenericName=Logitech Mouse Button Mapper
+Comment=마우스 도식에서 클릭으로 로지텍 버튼에 단축키를 매핑
+Comment[en]=Map shortcuts to Logitech mouse buttons by clicking a diagram
+Exec=logitux
+Icon=logitux
+Terminal=false
+Categories=Utility;Settings;HardwareSettings;
+Keywords=logitech;mouse;mx;master;button;mapping;shortcut;

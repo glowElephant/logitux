@@ -11,7 +11,8 @@
 3. **매핑 적용 + 배포** — Solaar 백엔드로 매핑을 영구 적용(autostart 포함)하고, 사내 누구나 원클릭 설치 가능한 패키지(AppImage/Flatpak) 제공.
    - ③-a **키 emit 적용** ✅ — "적용" 버튼 → `divert-keys` + `rules.yaml` 자동 생성 + 데몬 재시작 + 매핑 영구 저장/복원. (구현·실측 검증 완료)
    - ③-b **autostart 보장** ✅ — 적용 시 데몬 로그인 자동 실행을 보장. (`backend/autostart.py`)
-   - ③-c 패키징(AppImage/Flatpak) — 미구현
+   - ③-c **`.deb` 패키징** ✅ — `packaging/build-deb.sh`. 우분투 22.04 기준, solaar는 Depends로
+     자동 설치, PySide6(22.04 apt 미제공)는 postinst에서 pip 설치. 메뉴/아이콘 등록 포함.
 
 ### ③ 백엔드 레시피 (실측 검증됨, `backend/solaar_rules.py`)
 

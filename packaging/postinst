@@ -1,0 +1,20 @@
+#!/bin/sh
+# logitux 설치 후 처리.
+set -e
+
+# GUI 라이브러리(PySide6)는 우분투 22.04 apt에 없어 pip로 설치한다.
+# 이미 있으면 건너뛴다. 오프라인 등 실패 시 안내만 남긴다.
+if ! python3 -c "import PySide6" 2>/dev/null; then
+    echo "logitux: GUI 라이브러리(PySide6)를 설치합니다 ..."
+    if ! pip3 install pyside6 >/dev/null 2>&1; then
+        echo "logitux: PySide6 자동 설치에 실패했습니다."
+        echo "  인터넷 연결 후 'pip3 install pyside6' 를 직접 실행하세요."
+    fi
+fi
+
+# 메뉴/아이콘 캐시 갱신 (실패해도 무시)
+gtk-update-icon-cache -qf /usr/share/icons/hicolor 2>/dev/null || true
+update-desktop-database -q 2>/dev/null || true
+
+echo "logitux 설치 완료 — 애플리케이션 메뉴에서 'logitux' 를 실행하세요."
+exit 0
