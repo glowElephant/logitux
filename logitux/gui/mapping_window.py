@@ -262,7 +262,9 @@ class MappingWindow(QWidget):
         if not res.daemon_restarted:
             lines.append("\n❗ Solaar 데몬을 시작하지 못했습니다. solaar 설치를 확인하세요.")
         else:
-            lines.append("\n버튼을 눌러 동작을 확인하세요. (로그인 시 자동 적용됩니다)")
+            lines.append("\n버튼을 눌러 동작을 확인하세요.")
+        if res.autostart_msg:
+            lines.append(f"🔄 {res.autostart_msg}")
         if res.display_warning:
             lines.append(f"\n{res.display_warning}")
 

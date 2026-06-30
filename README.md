@@ -50,8 +50,9 @@ python3 main.py
 - ① 마우스 감지 + 선택 GUI
 - ② 도식 시각화 + 클릭 매핑 — 마우스 도식 위 버튼 핫스팟·연결선·라벨, 버튼 클릭 → 단축키 지정
 - ③-a **키 emit 적용** — "적용" 버튼을 누르면 매핑이 Solaar 백엔드(`divert-keys` + `rules.yaml`)로 변환되어 **실제로 키가 입력**됩니다. 매핑은 기기별로 저장돼 다음 실행 시 복원됩니다. (실측 검증 완료)
+- ③-b **autostart 보장** — 적용 시 데몬이 로그인할 때마다 자동 실행되도록 보장합니다. 대부분 solaar 설치만으로 시스템 autostart가 켜지며, 꺼져 있거나 없는 PC에서만 logitux가 사용자 autostart를 추가합니다.
 
-다음: ③-b autostart 등록(로그인 시 데몬 자동 실행), ③-c 패키징(AppImage/Flatpak). 계획·백엔드 레시피는 [`docs/spec.md`](docs/spec.md) 참조.
+다음: ③-c 패키징(AppImage/Flatpak). 계획·백엔드 레시피는 [`docs/spec.md`](docs/spec.md) 참조.
 
 > **제약**: 실제 키 입력은 X11에서 동작합니다(Solaar `KeyPress`가 XTEST 기반). Wayland 세션에선 적용 시 경고가 표시됩니다.
 > MX Master 4의 **액션 버튼(CID 416)**은 Solaar가 이름을 몰라(`unknown:01A0`) 현재 매핑에서 자동 제외됩니다 — 별도 처리 예정.
@@ -84,6 +85,7 @@ logitux/
     models.py        # 모델 도식 데이터 로드 + 기기 매칭
     keysyms.py       # Qt 키시퀀스 → X11 keysym 이름 변환 (③)
     solaar_rules.py  # 매핑 → divert-keys + rules.yaml 적용 + 데몬 관리 (③)
+    autostart.py     # 데몬 로그인 자동 실행 보장 (③-b)
   data/mice/
     mx-master-4.json   # MX4 실물 이미지 URL + 버튼 좌표
     mx-master-3s.json  # MX3S/3 실물 이미지 URL + 버튼 좌표

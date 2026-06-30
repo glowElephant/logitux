@@ -26,6 +26,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .autostart import ensure_daemon_autostart
 from .buttons import ButtonInfo, list_buttons
 from .detect import MouseDevice
 from .keysyms import UnsupportedKey, qt_sequence_to_keysyms
@@ -68,6 +69,7 @@ class ApplyResult:
     skipped: list[tuple[int, str]] = field(default_factory=list)  # (cid, 사유)
     daemon_restarted: bool = False
     display_warning: str | None = None
+    autostart_msg: str | None = None  # 데몬 자동 실행 보장 결과
 
 
 # ── 매핑 영구 저장 ────────────────────────────────────────────────
@@ -271,6 +273,9 @@ def apply_mappings(mouse: MouseDevice, mappings: dict[int, str]) -> ApplyResult:
     _update_divert(mouse, mappable_cids, on_cids)
     _write_rules(rules)
     result.daemon_restarted = start_daemon()
+
+    # 로그인 시 데몬이 자동으로 뜨도록 보장 (상시 실행 전제)
+    _, result.autostart_msg = ensure_daemon_autostart()
 
     _save_mappings(mouse.serial, result.applied)
     return result
