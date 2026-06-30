@@ -18,8 +18,12 @@
 매핑 적용 = 아래를 logitux가 자동화한다 (사용자는 그림+클릭만):
 1. `~/.config/solaar/config.json`의 기기 `divert-keys`에서 매핑할 CID를 `1`로.
 2. `~/.config/solaar/rules.yaml` 생성 — 매핑마다 `Key: [버튼이름, pressed]` → `KeyPress: [keysym…]`.
-   - `Key`는 CID 숫자가 아니라 **Solaar 키 이름**(`special_keys.CONTROL[cid]`). 예 195→"Mouse Gesture Button".
-   - **이름이 `unknown:*`인 버튼(MX4 액션버튼 CID 416)은 rules.yaml로 매핑 불가** → 적용 시 자동 skip. 별도 처리 과제로 남김.
+   - 이름 있는 버튼: `Key`는 CID 숫자가 아니라 **Solaar 키 이름**(`special_keys.CONTROL[cid]`). 예 195→"Mouse Gesture Button".
+   - **이름 없는 버튼(MX4 액션버튼 CID 416 = `unknown:01A0`)**: Solaar `CONTROL` enum에 없어 `Key`로 못 씀.
+     대신 **CID를 raw로 직접 매칭**한다 — `Feature: REPROG CONTROLS V4` + `Test: [0, 2, <cid>, <cid>]`.
+     근거(실측): 누름 시 REPROG_CONTROLS_V4 notification의 `data[0:2]`가 눌린 CID(416→`0x01A0`).
+     `process_notification`이 `_unpack('!4H', data[:8])`로 정수 CID를 뽑고, range_test가 그 2바이트를 검사.
+     뗌 notification은 `data[0:2]=0` → 누름에만 발동. `Feature` 조건으로 타 feature 오탐 차단.
    - `KeyPress`는 X11 keysym 이름. Qt `"Ctrl+Alt+S"` → `["Control_L","Alt_L","s"]` 변환은 `backend/keysyms.py`(공백="space", 기호="plus"/"slash" 등 X11 이름 규칙).
 3. `solaar --window=hide` 데몬 상시 실행. **순서 주의**: 데몬 정지 → config/rules 기록 → 데몬 시작 (떠 있으면 종료 시 config.json을 덮어씀).
 4. 매핑은 `~/.config/logitux/mappings.json`(기기 시리얼별)에 저장 → 다음 실행 시 복원.

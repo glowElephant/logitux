@@ -199,20 +199,36 @@ _RULES_HEADER = (
 )
 
 
-def _build_rules_yaml(rules: list[tuple[str, list[str]]]) -> str:
-    """(키이름, keysym리스트) 목록 → rules.yaml 텍스트.
+# REPROG CONTROLS V4 notification의 첫 2바이트(data[0:2])가 눌린 CID.
+# 이름 없는 버튼은 이 raw 값을 range_test로 직접 매칭한다(실측 검증: 416→0x01A0).
+_REPROG_FEATURE = "REPROG CONTROLS V4"
 
-    각 룰은 하나의 YAML 문서(--- 구분): Key 조건 + KeyPress 액션.
-    """
+
+@dataclass
+class _RuleSpec:
+    """rules.yaml 한 룰의 명세. keyname이 있으면 Key 조건, 없으면 CID(Test) 조건."""
+
+    keysyms: list[str]
+    keyname: str | None = None  # Solaar가 아는 버튼 이름 → Key 조건
+    cid: int | None = None      # 이름 없는 버튼 → Feature+Test 조건
+
+
+def _build_rules_yaml(rules: list[_RuleSpec]) -> str:
+    """룰 명세 목록 → rules.yaml 텍스트. 각 룰은 하나의 YAML 문서(--- 구분)."""
     docs = []
-    for keyname, keysyms in rules:
-        keys = ", ".join(keysyms)
-        docs.append(f"- Key: [{keyname}, pressed]\n- KeyPress: [{keys}]")
+    for r in rules:
+        keys = ", ".join(r.keysyms)
+        if r.keyname:
+            cond = f"- Key: [{r.keyname}, pressed]"
+        else:
+            # 이름 없는 버튼: feature 필터 + CID 직접 매칭 (오탐 방지)
+            cond = f"- Feature: {_REPROG_FEATURE}\n- Test: [0, 2, {r.cid}, {r.cid}]"
+        docs.append(f"{cond}\n- KeyPress: [{keys}]")
     body = "\n".join(f"---\n{d}" for d in docs)
     return _RULES_HEADER + body + "\n...\n"
 
 
-def _write_rules(rules: list[tuple[str, list[str]]]) -> None:
+def _write_rules(rules: list[_RuleSpec]) -> None:
     p = solaar_rules_path()
     p.parent.mkdir(parents=True, exist_ok=True)
     # 기존 사용자 파일이 logitux 관리 파일이 아니면 1회 백업
@@ -229,7 +245,8 @@ def apply_mappings(mouse: MouseDevice, mappings: dict[int, str]) -> ApplyResult:
     """매핑을 Solaar 백엔드에 적용하고 데몬을 재시작한다.
 
     mappings: {cid: "Ctrl+Alt+S"}. 빈 값/없는 cid는 매핑 해제로 취급.
-    이름 없는 버튼(예: unknown:01A0)이나 변환 불가 키는 skipped에 담아 반환한다.
+    이름 있는 버튼은 Key 조건, 이름 없는 버튼(예: unknown:01A0=액션버튼)은 CID 직접
+    매칭(Feature+Test)으로 룰을 만든다. 변환 불가 키만 skipped에 담아 반환한다.
     """
     result = ApplyResult()
 
@@ -244,17 +261,13 @@ def apply_mappings(mouse: MouseDevice, mappings: dict[int, str]) -> ApplyResult:
     by_cid = {b.cid: b for b in buttons}
     mappable_cids = {b.cid for b in buttons if b.mappable}
 
-    rules: list[tuple[str, list[str]]] = []
+    rules: list[_RuleSpec] = []
     for cid, seq in mappings.items():
         if not seq:
             continue
         info = by_cid.get(cid)
         if info is None or not info.mappable:
             result.skipped.append((cid, "매핑 불가 버튼"))
-            continue
-        keyname = info.name
-        if not keyname or keyname.startswith("unknown"):
-            result.skipped.append((cid, f"Solaar가 인식하는 버튼 이름이 없음 ({keyname})"))
             continue
         try:
             keysyms = qt_sequence_to_keysyms(seq)
@@ -263,7 +276,11 @@ def apply_mappings(mouse: MouseDevice, mappings: dict[int, str]) -> ApplyResult:
             continue
         if not keysyms:
             continue
-        rules.append((keyname, keysyms))
+        keyname = info.name
+        if keyname and not keyname.startswith("unknown"):
+            rules.append(_RuleSpec(keysyms=keysyms, keyname=keyname))  # Key 조건
+        else:
+            rules.append(_RuleSpec(keysyms=keysyms, cid=cid))          # CID 직접 매칭
         result.applied[cid] = seq
 
     on_cids = set(result.applied.keys())

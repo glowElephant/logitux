@@ -55,7 +55,7 @@ python3 main.py
 다음: ③-c 패키징(AppImage/Flatpak). 계획·백엔드 레시피는 [`docs/spec.md`](docs/spec.md) 참조.
 
 > **제약**: 실제 키 입력은 X11에서 동작합니다(Solaar `KeyPress`가 XTEST 기반). Wayland 세션에선 적용 시 경고가 표시됩니다.
-> MX Master 4의 **액션 버튼(CID 416)**은 Solaar가 이름을 몰라(`unknown:01A0`) 현재 매핑에서 자동 제외됩니다 — 별도 처리 예정.
+> MX Master 4의 **액션 버튼(CID 416)**은 Solaar가 이름을 몰라도(`unknown:01A0`) CID를 직접 매칭(`Feature`+`Test`)해 매핑됩니다. (실측 검증 완료)
 
 #### MX Master 4 버튼 메모
 
